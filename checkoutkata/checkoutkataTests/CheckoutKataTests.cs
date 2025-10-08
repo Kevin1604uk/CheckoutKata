@@ -7,19 +7,20 @@ namespace checkoutkataTests
     public class CheckoutKataTests
     {
         private IEnumerable<PricingRule> defaultRules = TestHelpers.GetDefaultRules();
-       
+        private IEnumerable<PricingRule> customRules = TestHelpers.GetCustomRules();
 
+        // Test empty checkout
         [Fact]
         public void EmptyCheckout_TotalPrice_IsZero()
         {
-
-
+            // Arrange
             var checkout = new CheckoutKata(defaultRules);
 
             // Act & Assert
             Assert.Equal(0, checkout.GetTotalPrice());
         }
 
+        // test simple item cases
         [Fact]
         public void ScanOneC_TotalPrice_Is20()
         {
@@ -50,6 +51,7 @@ namespace checkoutkataTests
             Assert.Equal(55, checkout.GetTotalPrice()); // Wait, 20+15+20=55, fixed in comment
         }
 
+        // test special offer cases
         [Fact]
         public void ScanThreeA_TotalPrice_Is130()
         {
@@ -71,6 +73,7 @@ namespace checkoutkataTests
             Assert.Equal(180, checkout.GetTotalPrice());
         }
 
+        // test mixed item cases (simple + offer)
         [Fact]
         public void MixedItemsWithAOffer_TotalPrice_IsCorrect()
         {
@@ -109,6 +112,7 @@ namespace checkoutkataTests
             Assert.Equal(95, checkout.GetTotalPrice());
         }
 
+        // test invalid item cases
         [Fact]
         public void ScanInvalidItem_ThrowsException()
         {
@@ -131,11 +135,12 @@ namespace checkoutkataTests
             Assert.Equal(210, checkout.GetTotalPrice());
         }
 
+        // test custom pricing rules
         [Fact]
         public void CustomRules_OverrideDefaultBehavior()
         {
             
-            var checkout = new CheckoutKata(TestHelpers.GetCustomRules());
+            var checkout = new CheckoutKata(customRules); // DI
             checkout.Scan("A"); 
             checkout.Scan("A"); 
             checkout.Scan("A");
