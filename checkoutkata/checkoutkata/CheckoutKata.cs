@@ -2,13 +2,15 @@
 {
     public class CheckoutKata : ICheckout
     {
+        private readonly ILogger _logger = new EventLogger();
 
         private readonly List<PricingRule> _rules;
         private readonly Dictionary<string, int> _itemCounts = new();
 
-        public CheckoutKata(IEnumerable<PricingRule> rules)
+        public CheckoutKata(IEnumerable<PricingRule> rules, ILogger logger)
         {
             _rules = rules?.ToList() ?? new List<PricingRule>();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -20,7 +22,7 @@
         {
             if (string.IsNullOrEmpty(item) || item.Length != 1)
             { 
-                ConsoleLogger.LogError(MessageHelpers.ErrorItemMustBeASingleCharacter);
+                _logger.LogError(MessageHelpers.ErrorItemMustBeASingleCharacter);
                 throw new ArgumentException(MessageHelpers.ErrorItemMustBeASingleCharacter, nameof(item));
             }
             string sku = item;
@@ -51,7 +53,7 @@
             }
             catch (Exception ex)
             {
-                ConsoleLogger.LogError(MessageHelpers.ErrorCalculatingTotalPrice);
+                _logger.LogError(MessageHelpers.ErrorCalculatingTotalPrice);
                 throw new Exception(MessageHelpers.ErrorCalculatingTotalPrice, ex);
             }
         }
