@@ -19,8 +19,10 @@
         public void Scan(string item)
         {
             if (string.IsNullOrEmpty(item) || item.Length != 1)
-                throw new ArgumentException("Item must be a single character SKU.", nameof(item));
-
+            { 
+                ConsoleLogger.LogError(MessageHelpers.ErrorItemMustBeASingleCharacter);
+                throw new ArgumentException(MessageHelpers.ErrorItemMustBeASingleCharacter, nameof(item));
+            }
             string sku = item;
             if (!_itemCounts.ContainsKey(sku))
                 _itemCounts[sku] = 0;
@@ -33,17 +35,25 @@
         /// </summary>
         public int GetTotalPrice()
         {
-            int total = 0;
-            foreach (var kvp in _itemCounts)
+            try
             {
-                string sku = kvp.Key;
-                int count = kvp.Value;
-                var rule = _rules.FirstOrDefault(r => r.Sku == sku);
-                if (rule == null) continue; // Ignore unknown SKUs
+                int total = 0;
+                foreach (var kvp in _itemCounts)
+                {
+                    string sku = kvp.Key;
+                    int count = kvp.Value;
+                    var rule = _rules.FirstOrDefault(r => r.Sku == sku);
+                    if (rule == null) continue; // Ignore unknown SKUs
 
-                total += CalculatePriceForItem(rule, count);
+                    total += CalculatePriceForItem(rule, count);
+                }
+                return total;
             }
-            return total;
+            catch (Exception ex)
+            {
+                ConsoleLogger.LogError(MessageHelpers.ErrorCalculatingTotalPrice);
+                throw new Exception(MessageHelpers.ErrorCalculatingTotalPrice, ex);
+            }
         }
 
         private static int CalculatePriceForItem(PricingRule rule, int count)

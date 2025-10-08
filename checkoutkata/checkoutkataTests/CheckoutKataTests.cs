@@ -7,7 +7,8 @@ namespace checkoutkataTests
     public class CheckoutKataTests
     {
         private IEnumerable<PricingRule> defaultRules = TestHelpers.GetDefaultRules();
-        private IEnumerable<PricingRule> customRules = TestHelpers.GetCustomRules();
+        private IEnumerable<PricingRule> customRules = TestHelpers.GetCustomRulesForWeekend();
+        private IEnumerable<PricingRule> bankHolidayRules = TestHelpers.GetCustomRulesForBankHoliday(); 
 
         // Test empty checkout
         [Fact]
@@ -112,7 +113,7 @@ namespace checkoutkataTests
             Assert.Equal(95, checkout.GetTotalPrice());
         }
 
-        // test invalid item cases
+        // test edge or invalid item cases
         [Fact]
         public void ScanInvalidItem_ThrowsException()
         {
@@ -137,7 +138,7 @@ namespace checkoutkataTests
 
         // test custom pricing rules
         [Fact]
-        public void CustomRules_OverrideDefaultBehavior()
+        public void CustomRulesForWeekend_OverrideDefaultBehavior()
         {
             
             var checkout = new CheckoutKata(customRules); // DI
@@ -145,6 +146,37 @@ namespace checkoutkataTests
             checkout.Scan("A"); 
             checkout.Scan("A");
             Assert.Equal(100, checkout.GetTotalPrice()); // Uses custom offer
+        }
+
+        [Fact]
+        public void CustomRulesForBankHoliday_OverrideDefaultBehavior()
+        {
+
+            var checkout = new CheckoutKata(bankHolidayRules); // DI
+            checkout.Scan("A");
+            checkout.Scan("A");
+            checkout.Scan("A");
+            Assert.Equal(100, checkout.GetTotalPrice()); // Uses custom offer
+        }
+
+        // test performance with large number of items
+        [Fact]
+        public void ScanLargeNumberOfItems_PerformanceTest()
+        {
+            var checkout = new CheckoutKata(defaultRules);
+            for (int i = 0; i < 1000; i++)
+            {
+                checkout.Scan("A");
+                checkout.Scan("B");
+                checkout.Scan("C");
+                checkout.Scan("D");
+            }
+            // 1000 A's: (333 * 130) + (1 * 50) = 43350 // should be 43340
+            // 1000 B's: (500 * 45) = 22500
+            // 1000 C's: (1000 * 20) = 20000
+            // 1000 D's: (1000 * 15) = 15000
+            // Total = 43350 + 22500 + 20000 + 15000 = 100850
+            Assert.Equal(100840, checkout.GetTotalPrice());
         }
     }
 }

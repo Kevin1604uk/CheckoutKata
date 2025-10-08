@@ -19,11 +19,21 @@ namespace checkoutkata
             };
         }
 
-        public static IEnumerable<PricingRule> GetCustomRules()
+        public static IEnumerable<PricingRule> GetCustomRulesForWeekend()
         {
             return new List<PricingRule>
             {
                 new("A", 50, 3, 100), // Cheaper offer for test
+                new("C", 20)
+            };
+        }
+
+        public static IEnumerable<PricingRule> GetCustomRulesForBankHoliday()
+        {
+            return new List<PricingRule>
+            {
+                new("A", 50, 3, 100), // Cheaper offer for test
+                new("B", 30, 2, 40), // Cheaper offer for test
                 new("C", 20)
             };
         }
