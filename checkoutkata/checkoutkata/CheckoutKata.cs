@@ -1,71 +1,42 @@
-﻿namespace checkoutkata
+﻿using checkoutkata.PricingRules;
+
+namespace checkoutkata
 {
     public class CheckoutKata : ICheckout
     {
-        private readonly ILogger _logger = new EventLogger();
+        private readonly IBasket _basket;
+        private readonly IPriceCalculator _calculator;
+        private readonly IEnumerable<IPricingRule> _pricingRules;
 
-        private readonly List<PricingRule> _rules;
-        private readonly Dictionary<string, int> _itemCounts = new();
-
-        public CheckoutKata(IEnumerable<PricingRule> rules, ILogger logger)
+        public CheckoutKata(
+            IBasket basket,
+            IPriceCalculator calculator,
+            IEnumerable<IPricingRule> pricingRules)
         {
-            _rules = rules?.ToList() ?? new List<PricingRule>();
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _basket = basket ?? throw new ArgumentNullException(nameof(basket));
+            _calculator = calculator ?? throw new ArgumentNullException(nameof(calculator));
+            _pricingRules = pricingRules?.ToList() ?? Enumerable.Empty<IPricingRule>();
         }
 
-        /// <summary>
-        /// Scans an item (single-character SKU).
-        /// </summary>
-        /// <param name="item">The SKU (e.g., "A").</param>
-        /// <exception cref="ArgumentException">If item is invalid.</exception>
-        public void Scan(string item)
-        {
-            if (string.IsNullOrEmpty(item) || item.Length != 1)
-            { 
-                _logger.LogError(MessageHelpers.ErrorItemMustBeASingleCharacter);
-                throw new ArgumentException(MessageHelpers.ErrorItemMustBeASingleCharacter, nameof(item));
-            }
-            string sku = item;
-            if (!_itemCounts.ContainsKey(sku))
-                _itemCounts[sku] = 0;
-            _itemCounts[sku]++;
-        }
+        public void Scan(string item) => _basket.AddItem(item);
 
-        /// <summary>
-        /// Calculates the total price, applying special offers where applicable.
-        /// Order of scanning does not matter; counts are used for pricing.
-        /// </summary>
+        public void Remove(string item) => _basket.RemoveItem(item); // Delegate to Basket
+
+
         public int GetTotalPrice()
         {
             try
             {
-                int total = 0;
-                foreach (var kvp in _itemCounts)
-                {
-                    string sku = kvp.Key;
-                    int count = kvp.Value;
-                    var rule = _rules.FirstOrDefault(r => r.Sku == sku);
-                    if (rule == null) continue; // Ignore unknown SKUs
-
-                    total += CalculatePriceForItem(rule, count);
-                }
-                return total;
+                var counts = _basket.GetItemCounts();
+                return _calculator.CalculateTotal(counts, _pricingRules);
             }
             catch (Exception ex)
             {
-                _logger.LogError(MessageHelpers.ErrorCalculatingTotalPrice);
-                throw new Exception(MessageHelpers.ErrorCalculatingTotalPrice, ex);
+                // Graceful: Log via injected logger (assume available); return 0 or partial total
+                // In full impl, inject ILogger here too
+                Console.Error.WriteLine(String.Format(MessageHelpers.ErrorCalculation, ex.Message));
+                return 0;
             }
-        }
-
-        private static int CalculatePriceForItem(PricingRule rule, int count)
-        {
-            if (!rule.SpecialQuantity.HasValue)
-                return count * rule.UnitPrice;
-
-            int groups = count / rule.SpecialQuantity.Value;
-            int remainder = count % rule.SpecialQuantity.Value;
-            return (groups * rule.SpecialPrice!.Value) + (remainder * rule.UnitPrice);
         }
 
     }

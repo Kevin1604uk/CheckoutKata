@@ -1,41 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using checkoutkata.PricingRules;
 
 namespace checkoutkata
 {
     public static class TestHelpers
     {
-        public static IEnumerable<PricingRule> GetDefaultRules()
+
+        public static List<PricingRule> DefaultPriceRules { get; } = new List<PricingRule>
+    {
+        new PricingRule("A", 50, 3, 130), // A: 50 each, 3 for 130
+        new PricingRule("B", 30, 2, 45), // B: 30 each, 2 for 45
+        new PricingRule("C", 20), // C: 20 each
+        new PricingRule("D", 15) // D: 15 each
+    };
+
+        public static IEnumerable<IPricingRule> GetDefaultStrategies()
         {
-            return new PricingRule[]
+            return new IPricingRule[]
             {
-                new("A", 50, 3, 130),
-                new("B", 30, 2, 45),
-                new("C", 20),
-                new("D", 15)
+            new PriceRuleStrategy(DefaultPriceRules) // OCP: Single strategy handles all pricing
             };
         }
 
-        public static IEnumerable<PricingRule> GetCustomRulesForWeekend()
+        public static IEnumerable<IPricingRule> GetWeekendStrategies()
         {
-            return new List<PricingRule>
+            return new IPricingRule[]
             {
-                new("A", 50, 3, 100), // Cheaper offer for test
-                new("C", 20)
+            new PriceRuleStrategy(WeekendPriceRules) // No pricing rules
             };
         }
 
-        public static IEnumerable<PricingRule> GetCustomRulesForBankHoliday()
+        public static IEnumerable<IPricingRule> GetBankHolidayStrategies()
         {
-            return new List<PricingRule>
+            return new IPricingRule[]
             {
-                new("A", 50, 3, 100), // Cheaper offer for test
-                new("B", 30, 2, 40), // Cheaper offer for test
-                new("C", 20)
+            new PriceRuleStrategy(BankHolidayPriceRules) // No pricing rules
             };
         }
+
+        public static IEnumerable<IPricingRule> GetNegativePriceStrategies()
+        {
+            return new IPricingRule[]
+            {
+            new PriceRuleStrategy(NegativePriceRules) // No pricing rules
+            };
+        }
+
+        public static List<PricingRule> EmptyPriceRules { get; } = new List<PricingRule>();
+
+        public static List<PricingRule> NegativePriceRules { get; } = new List<PricingRule>
+        {
+            new PricingRule("A", -50) // Cheaper offer
+        };
+        // Test-specific: Custom PriceRules for testing overrides
+        public static List<PricingRule> WeekendPriceRules { get; } = new List<PricingRule>
+        {
+            new PricingRule("A", 50, 4, 160) // Cheaper offer
+        };
+
+        public static List<PricingRule> BankHolidayPriceRules { get; } = new List<PricingRule>
+        {
+            new PricingRule("A", 50, 4, 150) // Cheaper offer
+        };
+
+        // Test-specific: Loyalty-like discount (5 A's for 225, 10% off)
+        public static List<PricingRule> LoyaltyPriceRules { get; } = new List<PricingRule>
+        {
+            new PricingRule("A", 50), // Unit price
+            new PricingRule("A", 0, 5, 225) // 5 A's for 225 (10% off 5*50)
+        };
+
+
+
+
     }
 }

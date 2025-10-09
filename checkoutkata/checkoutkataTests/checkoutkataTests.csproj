@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\checkoutkata\checkoutkata.csproj" />
+    <ProjectReference Include="..\checkoutkata\CheckoutKata.csproj" />
   </ItemGroup>
 
 </Project>

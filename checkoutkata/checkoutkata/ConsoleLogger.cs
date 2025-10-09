@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace checkoutkata
+﻿namespace checkoutkata
 {
-    static public class ConsoleLogger
+    public class ConsoleLogger : ILogger
     {
-        public static void LogError(string message) => Console.Error.WriteLine($"[ERROR] {message}");
+        public event EventHandler<string>? LogWritten;
+
+        public void LogError(string message) => Console.Error.WriteLine(String.Format(MessageHelpers.Error, message ?? ""));
 
     }
 }
