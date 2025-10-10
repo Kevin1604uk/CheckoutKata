@@ -4,20 +4,19 @@ namespace checkoutkata
 {
     public static class TestHelpers
     {
-
         public static List<PricingRule> DefaultPriceRules { get; } = new List<PricingRule>
-    {
-        new PricingRule("A", 50, 3, 130), // A: 50 each, 3 for 130
-        new PricingRule("B", 30, 2, 45), // B: 30 each, 2 for 45
-        new PricingRule("C", 20), // C: 20 each
-        new PricingRule("D", 15) // D: 15 each
-    };
+        {
+            new PricingRule("A", 50, 3, 130), // A: 50 each, 3 for 130
+            new PricingRule("B", 30, 2, 45), // B: 30 each, 2 for 45
+            new PricingRule("C", 20), // C: 20 each
+            new PricingRule("D", 15) // D: 15 each
+        };
 
         public static IEnumerable<IPricingRule> GetDefaultStrategies()
         {
             return new IPricingRule[]
             {
-            new PriceRuleStrategy(DefaultPriceRules) // OCP: Single strategy handles all pricing
+                new PriceRuleStrategy(DefaultPriceRules) // OCP: Single strategy handles all pricing
             };
         }
 
@@ -62,12 +61,15 @@ namespace checkoutkata
             new PricingRule("A", 50, 4, 150) // Cheaper offer
         };
 
-        // Test-specific: Loyalty-like discount (5 A's for 225, 10% off)
-        public static List<PricingRule> LoyaltyPriceRules { get; } = new List<PricingRule>
+
+        public static IEnumerable<IPricingRule> GetDiscountStrategies(List<PricingRule> pricingRules, int discount)
         {
-            new PricingRule("A", 50), // Unit price
-            new PricingRule("A", 0, 5, 225) // 5 A's for 225 (10% off 5*50)
-        };
+            return new IPricingRule[]
+            {
+                new PriceRuleStrategy(pricingRules),
+                new DiscountStrategy(decimal.Parse(discount.ToString()) / 100) // 10% discount
+            };
+        }
 
 
 

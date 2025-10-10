@@ -4,7 +4,7 @@
     {
         public event EventHandler<string>? LogWritten;
 
-        public void LogError(string message) => Console.Error.WriteLine(String.Format(MessageHelpers.Error, message ?? ""));
+        public void LogError(string message) => Console.Error.WriteLine(MessageHelpers.Error(message ?? ""));
 
     }
 }

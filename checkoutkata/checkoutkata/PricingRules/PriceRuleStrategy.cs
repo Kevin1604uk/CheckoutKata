@@ -2,7 +2,7 @@
 {
     public class PriceRuleStrategy : IPricingRule
     {
-        private readonly List<PricingRule> _pricingRules;
+        private List<PricingRule> _pricingRules;
 
         // DI: Inject list of PriceRules
         public PriceRuleStrategy(List<PricingRule> priceRules)

@@ -34,7 +34,7 @@ namespace checkoutkata
             {
                 // Graceful: Log via injected logger (assume available); return 0 or partial total
                 // In full impl, inject ILogger here too
-                Console.Error.WriteLine(String.Format(MessageHelpers.ErrorCalculation, ex.Message));
+                Console.Error.WriteLine(MessageHelpers.ErrorCalculation(ex.Message));
                 return 0;
             }
         }

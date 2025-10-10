@@ -3,29 +3,37 @@ Checkout Kata task
 
 Checkout Kata app uses C#, .NET 8. implementing 
 - scan items, gets total
+- use basket to hold the items
 - handle special offers
 - follow SOLID, Dependency Injection (DI), and Rule-based for extensibility
 - logging
 - code coverage
 
-
 Pricing Rules :
-A -> 50 each or 3 for 130
-B -> 30 each or 2 for 45
-C -> 20 each
-D -> 15 each
+- Default
+    A -> 50 each or 3 for 130
+    B -> 30 each or 2 for 45
+    C -> 20 each
+    D -> 15 each
+- Weekend
+	A -> 50 each or 4 for 160
+- Bank Holiday
+	A -> 50 each or 5 for 150
+- Discount
+	10% off Total price 
 
 Classes explanation :
 Main project - checkoutkata
 - Checkout, ICheckout = Main checkout Kata implementation
 - Basket, IBasket = Manage scanned items
-- PriceCalculator, PriceCalculator = calculates totals by rules
-- PricingRule, IPricingRule, UnitPriceRule, SpecialOfferRule = pricing rules (unit prices and offers)
+- PriceCalculator, PriceCalculator = Computes totals using pricing strategies
+- PricingStrategy, IPriceRuleStrategy, DiscountStrategy = Handles default, custom and discount pricing
 - CheckoutTests = Tests covering all scenarios (empty, single items, offers, errors)
 Test project - checkoutkataTests
 - TestHelpers = Test-specific constants (empty offers, custom pricing)
   - DefaultPricingRules = hardcoded prices (A, B, C, D)
   - CustomWeedendPricingRule, CustomBankHolidayPricingRule = lets you plug in your own prices/offers
+  - DiscountPricingRules = discount of total price
 Repository management
 - .gitignore = Ignores build artifacts, IDE files, etc.
 
@@ -45,6 +53,7 @@ Test Coverage :
 - Multiple items scanning with special offers
 - Mixed item combinations
 - Custom pricing rules for weekend (4 for 160) and bank holiday (4 for 150)
+- Discount pricing rules (10% off of total price)
 - Error handling (null, empty, unknown items)
 - Edge cases (quantities just above/below special price thresholds)
 

@@ -15,7 +15,7 @@
         {
             if (string.IsNullOrEmpty(item) || item.Length != 1)
             {
-                _logger.LogError(String.Format(MessageHelpers.ErrorInvalidItemScanned, item ?? ""));
+                _logger.LogError(MessageHelpers.ErrorInvalidItemScanned(item ?? ""));
                 throw new ArgumentException(nameof(item));
             }
             _items.Add(item);

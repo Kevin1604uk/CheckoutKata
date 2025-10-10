@@ -27,7 +27,7 @@ namespace checkoutkataTests
         #region empty basket
         // Test empty checkout
         [Fact]
-        public void EmptyCheckout_TotalPrice_IsZero()
+        public void Basket_EmptyCheckout_TotalPriceIsZero()
         {
             // Arrange
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
@@ -40,7 +40,7 @@ namespace checkoutkataTests
         #region single and multiple items
         // test simple single item cases
         [Fact]
-        public void ScanOneC_TotalPrice_Is20()
+        public void Basket_ScanOneC_TotalPriceIs20()
         {
             // Arrange
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
@@ -52,7 +52,7 @@ namespace checkoutkataTests
 
         // test simple multiple item cases without offers
         [Fact]
-        public void ScanTwoC_TotalPrice_Is40()
+        public void Basket_ScanTwoC_TotalPriceIs40()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("C");
@@ -61,7 +61,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void ScanThreeCDeleteC_TotalPrice_Is40()
+        public void Basket_ScanThreeCDeleteC_TotalPriceIs40()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("C");
@@ -72,7 +72,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void ScanInAnyOrder_CAndD_TotalPrice_Is55()
+        public void Basket_ScanInAnyOrder_CAndD_TotalPriceIs55()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("C"); // 20
@@ -85,7 +85,7 @@ namespace checkoutkataTests
         #region special offers and mixed items
         // test special offer cases
         [Fact]
-        public void AScanThreeA_TotalPrice_Is130()
+        public void Basket_ScanThreeA_TotalPriceIs130()
         {
             var checkout = new CheckoutKata(_basket, _calculator, TestHelpers.GetDefaultStrategies());
             checkout.Scan("A");
@@ -95,7 +95,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void ScanFourA_TotalPrice_Is180()
+        public void Basket_ScanFourA_TotalPriceIs180()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("A");
@@ -107,7 +107,7 @@ namespace checkoutkataTests
 
         // test mixed item cases (simple + offer)
         [Fact]
-        public void MixedItemsWithAOffer_TotalPrice_IsCorrect()
+        public void Basket_MixedItemsWithAOffer_TotalPriceIsCorrect()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("A");
@@ -118,7 +118,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void ScanTwoB_TotalPrice_Is45()
+        public void Basket_ScanTwoB_TotalPriceIs45()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("B");
@@ -127,7 +127,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void ScanThreeB_TotalPrice_Is75()
+        public void Basket_ScanThreeB_TotalPriceIs75()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("B");
@@ -137,7 +137,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void FullExample_BABSequence_TotalPrice_Is95()
+        public void Basket_DifferentScanSequence_TotalPriceIs95()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             checkout.Scan("B"); // Counts as part of offer
@@ -145,37 +145,9 @@ namespace checkoutkataTests
             checkout.Scan("B"); // Now 2 B's = 45, total 95
             Assert.Equal(95, checkout.GetTotalPrice());
         }
-        #endregion
-
-        #region invalid and edge cases
-        // test edge or invalid item cases
-        [Fact]
-        public void ScanInvalidItem_ThrowsException()
-        {
-            var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
-            Assert.Throws<ArgumentException>(() => checkout.Scan("XX"));
-        }
 
         [Fact]
-        public void ScanNullItem_ThrowsException()
-        {
-            var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
-            //Assert.Throws<ArgumentException>(() => checkout.Scan(null));
-        }
-
-        [Fact]
-        public void PriceIsNegative_ThrowsException()
-        {
-            _invalidRulesNegativePrice.Select(x => x);
-        }
-
-
-
-        #endregion
-
-
-        [Fact]
-        public void AllItemsWithOffers_TotalPrice_Is210()
+        public void Basket_AllItemsWithOffers_TotalPriceIs210()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             // 3 A: 130
@@ -191,10 +163,44 @@ namespace checkoutkataTests
             checkout.Scan("D");
             Assert.Equal(210, checkout.GetTotalPrice());
         }
+        #endregion
 
+        #region invalid and edge cases
+        // test edge or invalid item cases
+        [Fact]
+        public void Basket_ScanInvalidItem_ThrowsException()
+        {
+            var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
+            Assert.Throws<ArgumentException>(() => checkout.Scan("XX"));
+        }
+
+        [Fact]
+        public void Basket_ScanNullItem_ThrowsException()
+        {
+            var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
+            Assert.Throws<ArgumentException>(() => checkout.Scan(null));
+        }
+
+
+        [Fact]
+        public void PricingRules_PriceIsNegative_ThrowsException()
+        {
+            // Arrange
+            var pricingRule = new PricingRule("A", -10);
+
+            // Assert
+            Assert.Equal(MessageHelpers.ErrorItemUnitPriceCannotBeNegative("A"), pricingRule.ReturnMessage);
+
+        }
+
+
+
+        #endregion
+
+        #region custom pricing rules
         // test custom pricing rules
         [Fact]
-        public void CustomRulesForWeekend_NotMeetSpecialOffer_Is150()
+        public void PricingRules_ForWeekend_NotMeetSpecialOffer_Is150()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _customRules); // DI
             checkout.Scan("A");
@@ -206,7 +212,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void CustomRulesForWeekend_MeetSpecialOffer_Is160()
+        public void PricingRules_ForWeekend_MeetSpecialOffer_Is160()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _customRules); // DI
             checkout.Scan("A");
@@ -219,7 +225,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void CustomRulesForBankHoliday_NotMeetSpecialOffer_Is150()
+        public void PricingRules_ForBankHoliday_NotMeetSpecialOffer_Is150()
         {
 
             var checkout = new CheckoutKata(_basket, _calculator, _bankHolidayRules); // DI
@@ -232,7 +238,7 @@ namespace checkoutkataTests
         }
 
         [Fact]
-        public void CustomRulesForBankHoliday_MeetSpecialOffer_Is150()
+        public void PricingRules_ForBankHoliday_MeetSpecialOffer_Is150()
         {
 
             var checkout = new CheckoutKata(_basket, _calculator, _bankHolidayRules); // DI
@@ -244,10 +250,12 @@ namespace checkoutkataTests
             // With bank holiday rules, 4 A's = 150 overriden default 3 A's = 130
             Assert.Equal(150, checkout.GetTotalPrice()); // Uses custom offer
         }
+        #endregion
 
+        #region test performance
         // test performance with large number of items
         [Fact]
-        public void ScanLargeNumberOfItems_PerformanceTest_ReturnsExpectedTotal()
+        public void Performance_ScanLargeNumberOfItems_ReturnsExpectedTotal()
         {
             var checkout = new CheckoutKata(_basket, _calculator, _defaultRules);
             for (int i = 0; i < 1000; i++)
@@ -264,6 +272,24 @@ namespace checkoutkataTests
             // Total = 43350 + 22500 + 20000 + 15000 = 100850
             Assert.Equal(100840, checkout.GetTotalPrice());
         }
+        #endregion
 
+        #region Discount Tests
+        [Fact]
+        public void PricingRules_Disccount_ScanMultipleItems_AppliedCorrectly()
+        {
+            var discountRules = TestHelpers.GetDiscountStrategies(TestHelpers.DefaultPriceRules, 10); // 10% discount
+            var checkout = new CheckoutKata(_basket, _calculator, discountRules);
+            checkout.Scan("A");
+            checkout.Scan("A");
+            checkout.Scan("A"); // 130
+            checkout.Scan("B");
+            checkout.Scan("B"); // +45
+            // Total before discount: 175
+            // After 10% discount: 157.5 -> 157 (integer)
+            Assert.Equal(157, checkout.GetTotalPrice());
+        }
+
+        #endregion
     }
 }
